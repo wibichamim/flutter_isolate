@@ -1,3 +1,3 @@
 # flutter_isolate
 
-A new Flutter project.
+Flutter isolate example
