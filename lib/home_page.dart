@@ -36,6 +36,7 @@ double complexTask3() {
 
 class _HomePageState extends State<HomePage> {
   double result = 0;
+  var overlayController = OverlayPortalController();
 
   @override
   Widget build(BuildContext context) {
@@ -88,6 +89,59 @@ class _HomePageState extends State<HomePage> {
                   });
                 },
                 child: const Text('Reset'),
+              ),
+              ElevatedButton(
+                onPressed: overlayController.toggle,
+                child: OverlayPortal(
+                  controller: overlayController,
+                  overlayChildBuilder: (context) {
+                    return Positioned(
+                      right: 20,
+                      top: 315,
+                      child: Column(
+                        children: [
+                          ElevatedButton(
+                            onPressed: () async {
+                              var total = await complexTask1();
+                              debugPrint('Result 1: $total');
+                              setState(() {
+                                result = total;
+                              });
+                            },
+                            child: const Text('Task 1'),
+                          ),
+                          //Isolate
+                          ElevatedButton(
+                            onPressed: () async {
+                              final receivePort = ReceivePort();
+                              await Isolate.spawn(
+                                  complexTask2, receivePort.sendPort);
+                              receivePort.listen((total) {
+                                debugPrint('Result 2: $total');
+                                setState(() {
+                                  result = total;
+                                });
+                              });
+                            },
+                            child: const Text('Task 2'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () async {
+                              double total =
+                                  await Isolate.run(() => complexTask3());
+                              debugPrint('Result 3: $total');
+                              setState(() {
+                                result = total;
+                              });
+                            },
+                            child: const Text('Task 3'),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  child: const Text('Show/Hide Tooltip'),
+                ),
               ),
               const Gap(20),
               const Text(
